@@ -7,6 +7,32 @@ A maze game
 The game will allow the user to walk through the maze (the user can only see part of the map while walking) to defeat monsters, avoid traps, find treasure and finally reach the target in the maze
 
 
+### UI Design
+
+```python
+
+// ---- CHARACTER ----
+// HP: 9
+// MOV: 0
+// FOV: 2
+// ---- --------- ----
+
+ ---- ---- ---- ---- ----
+|CHAR|    | X  | ?  | ?  |
+ ---- ---- ---- ---- ----
+|    |    | X  | ?  | ?  |
+ ---- ---- ---- ---- ----
+| X  |MOST| X  | ?  | ?  |
+ ---- ---- ---- ---- ----
+| ?  | ?  | ?  | ?  | ?  |
+ ---- ---- ---- ---- ----
+| ?  | ?  | ?  | ?  |GOAL|
+ ---- ---- ---- ---- ----
+
+w/s/a/d> 
+```
+
+
 
 ## Architecture
 
