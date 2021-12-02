@@ -4,6 +4,8 @@ import System.IO
 import Block
 import Character (Character)
 
+-- TODO: printer and brick lib
+
 printLevel :: [[Block]] -> Character -> IO ()
 printLevel board character = do
   putStrLn "// ---- CHARACTER ----"

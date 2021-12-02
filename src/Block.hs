@@ -9,9 +9,9 @@ data Block
 -- func icon(block: Block, outFov: Bool) -> [Char]
 icon :: Block -> Bool -> [Char]
 icon EmptyBlock False = "    "
-icon GoalBlock False = "GOAL"
 icon WallBlock False = " X  "
 icon (MonsterBlock _) False = "MOST"
+icon GoalBlock _ = "GOAL"
 icon _ True = " ?  " -- out of FOV
 
 isValid :: Block -> Bool

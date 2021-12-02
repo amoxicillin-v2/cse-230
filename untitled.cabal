@@ -26,6 +26,7 @@ library
   exposed-modules:
       Block
       Character
+      Config
       GameLevel
       Menu
       Printer
