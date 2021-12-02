@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+import Printer
+import Menu
 
 main :: IO ()
-main = someFunc
+main = Menu.run
