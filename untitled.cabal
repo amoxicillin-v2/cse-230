@@ -24,7 +24,12 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Block
+      Character
+      Config
+      GameLevel
+      Menu
+      Printer
   other-modules:
       Paths_untitled
   hs-source-dirs:
