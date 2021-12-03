@@ -16,7 +16,14 @@ setRowAt s i v = take i s ++ [v] ++ drop (i + 1) s
 setBoardVal :: [[Block]] -> Int -> Int -> Block -> [[Block]]
 setBoardVal board y x block = take y board ++ [setRowAt (board!!y) x block] ++ drop (y + 1) board 
 
-
+upDateCharacter :: Character -> Block -> Character
+upDateCharacter character neighborBlock = NewCharacter
+          { health = (health character) + (damage neighborBlock),
+            stepCount = (stepCount character),
+            fov = (fov character),
+            yPos = (yPos character),
+            xPos = (xPos character)
+          }
 
 -- move character to destination (destX, destY)
 move :: [[Block]] -> Character -> Int -> Int -> IO ([[Block]], Character)
@@ -25,10 +32,23 @@ move board character destY destX = do
   let val = isValid (board !! 2 !! 1)
 
   -- check the block type to decide whether I need to move or update
+  
+  let y0 = yPos character
+  let x0 = xPos character
+  let health0 = health character
+  -- update character
+  let newCharacter = NewCharacter {
+      health =  health0 + (damage (board!!destY!!destX)),
+            stepCount = (stepCount character),
+            fov = (fov character),
+            yPos = destY,
+            xPos = destX
+  }
+
   -- move the characters to new position
   let newBoard1 = setBoardVal board destY destX CharacterBlock
   -- update the original position of the character 
-  let newBoard2 = setBoardVal board (yPos character) (xPos character) EmptyBlock
+  let newBoard2 = setBoardVal board y0 x0 EmptyBlock
   
   -- TODO: build new board and character
   return (board, character) -- return new board an character
