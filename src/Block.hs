@@ -5,6 +5,8 @@ data Block
   | GoalBlock {}
   | WallBlock {}
   | MonsterBlock {attack :: Int}
+  | CharacterBlock {} deriving Show
+
 
 -- func icon(block: Block, outFov: Bool) -> [Char]
 icon :: Block -> Bool -> [Char]
@@ -12,6 +14,7 @@ icon EmptyBlock False = "    "
 icon WallBlock False = " X  "
 icon (MonsterBlock _) False = "MOST"
 icon GoalBlock _ = "GOAL"
+icon CharacterBlock _ = "CHAR"
 icon _ True = " ?  " -- out of FOV
 
 isValid :: Block -> Bool
@@ -25,6 +28,13 @@ isGoal _ = False
 damage :: Block -> Int
 damage (MonsterBlock attack) = attack
 damage _ = 0
+
+-- >>> CharacterBlock
+-- CharacterBlock
+
+-- >>> EmptyBlock
+-- EmptyBlock
+--
 
 -- class IBlock a where
 --   icon :: a -> String
