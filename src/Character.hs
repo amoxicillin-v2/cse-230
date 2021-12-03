@@ -10,6 +10,11 @@ data Character = NewCharacter
     xPos :: Int
   }
 
+data GameStatus = MkGameStatus {
+    board:: [[Block]],
+    character:: Character
+}
+
 setRowAt :: [Block] -> Int -> Block -> [Block]
 setRowAt s i v = take i s ++ [v] ++ drop (i + 1) s
 
@@ -25,14 +30,24 @@ upDateCharacter character neighborBlock = NewCharacter
             xPos = (xPos character)
           }
 
+printCharacterBlockInteract:: Character -> Block -> IO ()
+printCharacterBlockInteract character (MonsterBlock attack) = do
+    putStrLn ("Encounter a monster health drop by " ++ show (abs attack))
+    return ()
+printCharacterBlockInteract character _ = do
+    putStrLn ("do nothing")
+    return ()
+
+
 -- move character to destination (destX, destY)
 move :: [[Block]] -> Character -> Int -> Int -> IO ([[Block]], Character)
 move board character destY destX = do
   
   let val = isValid (board !! 2 !! 1)
+  -- print the interaction between monster and block
+  printCharacterBlockInteract character (board!!destY!!destX)
 
   -- check the block type to decide whether I need to move or update
-  
   let y0 = yPos character
   let x0 = xPos character
   let health0 = health character
@@ -48,10 +63,10 @@ move board character destY destX = do
   -- move the characters to new position
   let newBoard1 = setBoardVal board destY destX CharacterBlock
   -- update the original position of the character 
-  let newBoard2 = setBoardVal board y0 x0 EmptyBlock
+  let newBoard2 = setBoardVal newBoard1 y0 x0 EmptyBlock
   
   -- TODO: build new board and character
-  return (board, character) -- return new board an character
+  return (newBoard2, newCharacter) -- return new board an character
 
 
 ---- Some testing code
@@ -90,3 +105,28 @@ testBoard = [[CharacterBlock, EmptyBlock], [EmptyBlock, EmptyBlock]]
 -- CharacterBlock
 -- EmptyBlock
 --
+
+monsterBlock2:: Block
+monsterBlock2 = MonsterBlock {
+    attack = -2
+}
+testBoard2 :: [[Block]]
+testBoard2 = [[CharacterBlock, monsterBlock2], [EmptyBlock, EmptyBlock]]
+
+debugPrintFunc:: IO([[Block]], Character) -> IO()
+debugPrintFunc newStatus = do
+    (b, c) <- newStatus
+    return ()
+    -- putStr (show (b!!0!!0) ++ ", ")
+    -- putStr (show (b!!0!!1) ++ ", ")
+    -- putStr (show (b!!1!!0) ++ ", ")
+    -- putStr (show (b!!1!!1) ++ ", ")
+    -- return ()
+
+--- >>> newStatus = move testBoard2 testCharacter 0 1
+--- >>> debugPrintFunc  newStatus
+--- Encounter a monster health drop by 2
+---
+
+--- >>> newStatus = move testBoard2 testCharacter 0 1
+---
