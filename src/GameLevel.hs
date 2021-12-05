@@ -7,6 +7,7 @@ import Character
 import Graphics.Vty
 import qualified Graphics.Vty
 import Printer
+import System.IO
 
 run :: [[Block]] -> Maybe Character -> IO ()
 -- initialize character if not present
@@ -35,38 +36,42 @@ run board (Just character) = do
   Printer.printPrompt "\nw/s/a/d>"
 
   -- get input
-  action <- getLine
+  hSetBuffering stdin NoBuffering
+  hSetBuffering stdout NoBuffering
+  action <- getChar
+  hSetBuffering stdin LineBuffering
+  hSetBuffering stdout LineBuffering
   -- check valid move
   let (NewCharacter _ _ _ y x) = character
   let y1
-        | action == "w" = y -1
-        | action == "s" = y + 1
+        | action == 'w' = y -1
+        | action == 's' = y + 1
         | otherwise = y
   let x1
-        | action == "a" = x -1
-        | action == "d" = x + 1
+        | action == 'a' = x -1
+        | action == 'd' = x + 1
         | otherwise = x
   let height = length board
   let width = length (head board)
   if y1 >= height || y1 < 0 || x1 >= width || x1 < 0 || not (Block.isValid (board !! y1 !! x1)) -- if not valid move
-    then do {putStrLn "invalid move"; run board (Just character)}
+    then do {putStrLn "\ninvalid move"; run board (Just character)}
     else do
-      putStrLn "valid move"
+      putStrLn "\nvalid move"
       -- valid move
       -- FIXME: receive return value?
-      Character.move board character y1 x1
+      (board1, character1) <- Character.move board character y1 x1
       -- check gameover, goal
-      let (NewCharacter health _ _ y2 x2) = character
+      let (NewCharacter health _ _ y2 x2) = character1
       if health < 0
         then do
           putStrLn "Game Over"
           return () -- game over
         else
-          if Block.isGoal (board !! y2 !! x2)
+          if Block.isGoal (board1 !! y2 !! x2)
             then do
               putStrLn "Game Clear"
               return () -- game clear
             else do
               -- continue event loop
-              run board (Just character)
+              run board (Just character1)
               return ()

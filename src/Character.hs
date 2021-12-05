@@ -53,7 +53,7 @@ move board character destY destX = do
   let health0 = health character
   -- update character
   let newCharacter = NewCharacter {
-      health =  health0 + (damage (board!!destY!!destX)),
+      health =  health0 - (damage (board!!destY!!destX)),
             stepCount = (stepCount character),
             fov = (fov character),
             yPos = destY,

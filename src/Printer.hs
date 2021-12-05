@@ -30,6 +30,8 @@ printPrompt str = do
   hSetBuffering stdin NoBuffering
   hSetBuffering stdout NoBuffering
   putStr str
+  hSetBuffering stdin LineBuffering
+  hSetBuffering stdout LineBuffering
 
 horizontalSeperator = do
   putStrLn "---- ---- ---- ---- ----"
