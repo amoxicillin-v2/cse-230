@@ -89,8 +89,8 @@ brickMain gameStatus = do
 
 app :: App GameStatus Tick String
 app = App {
-  -- appDraw         = view 
-   appChooseCursor = const . const Nothing
+  appDraw           = Printer.drawGame 
+  , appChooseCursor = const . const Nothing
   , appHandleEvent  = control 
   , appStartEvent   = return
   , appAttrMap      = const (attrMap defAttr [])

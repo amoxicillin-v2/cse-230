@@ -2,7 +2,7 @@ module Printer where
 
 import System.IO
 import Block
-import Character (Character (NewCharacter), health, stepCount, fov, xPos, yPos)
+import Character (Character (NewCharacter), health, stepCount, fov, xPos, yPos, GameStatus (character, board))
 import Brick
 import Brick.Widgets.Border (borderWithLabel, vBorder, hBorder)
 import Brick.Widgets.Border.Style (unicode)
@@ -106,10 +106,6 @@ testBoard = [[WallBlock, EmptyBlock, WallBlock], [EmptyBlock, EmptyBlock, WallBl
 -- <BLANKLINE>
 --
 
-data GameStatus = MkGameStatus {
-    board:: [[Block]],
-    character:: Character
-}
 
 drawCharacter :: Character -> Widget String
 drawCharacter cha = do
@@ -126,10 +122,10 @@ drawCharacter cha = do
 drawBlock :: Block -> Bool -> Widget String
 drawBlock _ True = centerWith (Just ' ') blockN
 drawBlock EmptyBlock False = center blockE
+drawBlock CharacterBlock False = center blockE
 drawBlock WallBlock False = centerWith (Just 'X') blockW
 drawBlock (MonsterBlock _) False = center blockM
 drawBlock GoalBlock False = center blockG
-drawBlock (TeatureBlock _) False = center blockT
 
 drawLine :: [Block] -> Int -> Int -> Int -> [Widget String]
 drawLine [] _ _ _ = []
