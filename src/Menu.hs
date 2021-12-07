@@ -17,9 +17,19 @@ run = do
 
   -- get input
   choice <- getLine
-  -- TODO: validate input
+  -- validate input & level select
   if choice == "q"
     then return ()
-    else do
-      putStrLn ("\nEntering level: " ++ choice)
-      GameLevel.run [[EmptyBlock {}, EmptyBlock {}], [EmptyBlock {}, GoalBlock {}]] Nothing
+    else
+      if choice /= "1" && choice /= "2"
+        then Menu.run
+        else do
+          putStrLn ("\nEntering level: " ++ choice)
+          GameLevel.run
+            [ [EmptyBlock {}, EmptyBlock {}, WallBlock {}, WallBlock {}],
+              [EmptyBlock {}, GoalBlock {}, WallBlock {}, WallBlock {}],
+              [EmptyBlock {}, MonsterBlock {attack = 99}, WallBlock {}, WallBlock {}],
+              [WallBlock {}, WallBlock, WallBlock {}, WallBlock {}]
+            ]
+            Nothing
+            0
