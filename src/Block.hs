@@ -21,13 +21,14 @@ isValid :: Block -> Bool
 isValid WallBlock = False
 isValid _ = True
 
--- isGoal :: Block -> Bool
--- isGoal GoalBlock = True
--- isGoal _ = False
+isGoal :: Block -> Bool
+isGoal GoalBlock = True
+isGoal _ = False
 
 damage :: Block -> Int
 damage (MonsterBlock attack) = attack
 damage _ = 0
+
 
 -- >>> CharacterBlock
 -- CharacterBlock

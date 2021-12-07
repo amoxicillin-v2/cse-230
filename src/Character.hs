@@ -18,12 +18,14 @@ data GameStatus = MkGameStatus {
     tick :: Int
 }
 
+-- Functions to change the board
 setRowAt :: [Block] -> Int -> Block -> [Block]
 setRowAt s i v = take i s ++ [v] ++ drop (i + 1) s
 
 setBoardVal :: [[Block]] -> Int -> Int -> Block -> [[Block]]
 setBoardVal board y x block = take y board ++ [setRowAt (board!!y) x block] ++ drop (y + 1) board 
 
+-- Update the Character information
 upDateCharacter :: Character -> Block -> Character
 upDateCharacter character neighborBlock = NewCharacter
           { health = (health character) + (damage neighborBlock),
@@ -33,43 +35,56 @@ upDateCharacter character neighborBlock = NewCharacter
             xPos = (xPos character)
           }
 
-printCharacterBlockInteract:: Character -> Block -> IO ()
-printCharacterBlockInteract character (MonsterBlock attack) = do
-    -- putStrLn ("Encounter a monster health drop by " ++ show (abs attack))
-    return ()
-printCharacterBlockInteract character _ = do
-    -- putStrLn ("do nothing")
-    return ()
+-- Functions to show information to player
+positionToString:: Int -> Int -> String
+positionToString y x = "(" ++ show(y) ++ ", " ++ show(x) ++ ")"
+
+createGameInfo ::  Character -> Int -> Int -> Block -> String
+createGameInfo  _ y x WallBlock = "At position " ++ (positionToString y x) ++ " is a block. (Invalid move.)"
+createGameInfo  _ y x EmptyBlock = "Move to position" ++ (positionToString y x) ++ ". (Valid Move)."
+createGameInfo character y x (MonsterBlock attack) = if newHealth > 0 
+    then "Meet a monster at " ++ (positionToString y x) ++ " health dropped by " ++ (show (abs attack)) ++ "."
+    else "You die (Game Over)."
+    where newHealth = (health character) + attack
+createGameInfo _ y x GoalBlock = "Find the treasure. (You win.)"
 
 
 -- move character to destination (destX, destY)
-move :: [[Block]] -> Character -> Int -> Int -> ([[Block]], Character)
+move :: [[Block]] -> Character -> Int -> Int -> IO(GameStatus)
 move board character destY destX = do
   
-  let val = isValid (board !! 2 !! 1)
-  -- print the interaction between monster and block
-  -- printCharacterBlockInteract character (board!!destY!!destX)
 
   -- check the block type to decide whether I need to move or update
   let y0 = yPos character
   let x0 = xPos character
   let health0 = health character
+  
+  let info = createGameInfo character destY destX (board!!destY!!destX)
+
   -- update character
   let newCharacter = NewCharacter {
-      health =  health0 - (damage (board!!destY!!destX)),
+      health =  health0 + (damage (board!!destY!!destX)),
             stepCount = (stepCount character),
             fov = (fov character),
             yPos = destY,
             xPos = destX
   }
-
+  
+  let gameOver = isGoal (board!!destY!!destX)
   -- move the characters to new position
   let newBoard1 = setBoardVal board destY destX CharacterBlock
-  -- update the original position of the character 
+
+  -- set the original position to empty
   let newBoard2 = setBoardVal newBoard1 y0 x0 EmptyBlock
   
   -- TODO: build new board and character
-  (newBoard2, newCharacter) -- return new board an character
+  return MkGameStatus {
+    board=newBoard2,
+    character=newCharacter,
+    gameOver=gameOver, 
+    gameInfo=info,
+    tick=0
+  }
 
 
 ---- Some testing code
@@ -114,22 +129,57 @@ monsterBlock2 = MonsterBlock {
     attack = -2
 }
 testBoard2 :: [[Block]]
-testBoard2 = [[CharacterBlock, monsterBlock2], [EmptyBlock, EmptyBlock]]
+testBoard2 = [[CharacterBlock, monsterBlock2], [EmptyBlock, GoalBlock]]
 
-debugPrintFunc:: IO([[Block]], Character) -> IO()
+debugPrintFunc:: IO(GameStatus) -> IO()
 debugPrintFunc newStatus = do
-    (b, c) <- newStatus
+    gameStatus <- newStatus
+
+    let b = (board gameStatus)
+    putStrLn (show (b!!0!!0) ++ ", ")
+    putStrLn (show (b!!0!!1) ++ ", ")
+    putStrLn (show (b!!1!!0) ++ ", ")
+    putStrLn (show (b!!1!!1) ++ ", ")
+
+    let c = (character gameStatus)
+    putStrLn ("health: " ++ show (health c))
+    putStrLn ("Position" ++ (positionToString (yPos c) (xPos c)))
+    
+    let info = (gameInfo gameStatus)
+    putStrLn info
+
+    let gO = (gameOver gameStatus)
+    if gO 
+        then putStrLn "Game Over!! You win!"
+        else putStrLn "Continue!" 
     return ()
-    -- putStr (show (b!!0!!0) ++ ", ")
-    -- putStr (show (b!!0!!1) ++ ", ")
-    -- putStr (show (b!!1!!0) ++ ", ")
-    -- putStr (show (b!!1!!1) ++ ", ")
-    -- return ()
 
 --- >>> newStatus = move testBoard2 testCharacter 0 1
---- >>> debugPrintFunc  newStatus
---- Encounter a monster health drop by 2
+--- >>> debugPrintFunc newStatus
+--- EmptyBlock, 
+--- CharacterBlock, 
+--- EmptyBlock, 
+--- GoalBlock, 
+--- health: 4
+--- Position(0, 1)
+--- Meet a monster at (0, 1) health dropped by 2.
+--- Continue!
 ---
 
---- >>> newStatus = move testBoard2 testCharacter 0 1
+runTooEnd::[[Block]] -> Character -> IO(GameStatus)
+runTooEnd testBoard testCharacter = do 
+    newStatus <- move testBoard testCharacter 0 1
+    move (board newStatus) (character newStatus) 1 1
+
+--- >>> newStatus = runTooEnd testBoard2 testCharacter
+--- >>> debugPrintFunc newStatus
+--- EmptyBlock, 
+--- EmptyBlock, 
+--- EmptyBlock, 
+--- CharacterBlock, 
+--- health: 4
+--- Position(1, 1)
+--- Find the treasure. (You win.)
+--- Game Over!! You win!
 ---
+
