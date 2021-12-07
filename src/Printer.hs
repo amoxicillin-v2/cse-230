@@ -2,7 +2,7 @@ module Printer where
 
 import System.IO
 import Block
-import Character (Character (NewCharacter), health, stepCount, fov, xPos, yPos, GameStatus (character, board))
+import Character (GameStatus, character, board, gameInfo, Character (NewCharacter), health, stepCount, fov, xPos, yPos)
 import Brick
 import Brick.Widgets.Border (borderWithLabel, vBorder, hBorder)
 import Brick.Widgets.Border.Style (unicode)
@@ -106,7 +106,6 @@ testBoard = [[WallBlock, EmptyBlock, WallBlock], [EmptyBlock, EmptyBlock, WallBl
 -- <BLANKLINE>
 --
 
-
 drawCharacter :: Character -> Widget String
 drawCharacter cha = do
   let h = show(health cha)
@@ -120,12 +119,14 @@ drawCharacter cha = do
     str "-------------------"]
 
 drawBlock :: Block -> Bool -> Widget String
+drawBlock GoalBlock _ = center blockG
+drawBlock CharacterBlock _ = center blockC
 drawBlock _ True = centerWith (Just ' ') blockN
 drawBlock EmptyBlock False = center blockE
 drawBlock CharacterBlock False = center blockE
 drawBlock WallBlock False = centerWith (Just 'X') blockW
 drawBlock (MonsterBlock _) False = center blockM
-drawBlock GoalBlock False = center blockG
+-- drawBlock (TreatureBlock _) False = center blockT
 
 drawLine :: [Block] -> Int -> Int -> Int -> [Widget String]
 drawLine [] _ _ _ = []
@@ -157,34 +158,35 @@ drawGame gs = do
   let down = (yPos cha) + (fov cha)
   [vBox [
     hCenter (drawCharacter cha),
-    center (vLine (drawMaze b left right up down 0))]]
+    center (vLine (drawMaze b left right up down 0)),
+    hCenter (str (gameInfo gs))]]
 
 blockM, blockT, blockG, blockN, blockE, blockW, blockC:: Widget n
 blockM = vBox [
-  str " X X ",
-  str "  A  ",
-  str " VWV "]
+  str "  X X ",
+  str "   A  ",
+  str "  VWV "]
 blockG = vBox [
-  str "||>  ",
-  str "||> >",
-  str "||   "]
+  str " ||>  ",
+  str " ||> >",
+  str " ||   "]
 blockT = vBox [
-  str "  *  ",
-  str " *** ",
-  str "  *  "]
+  str "   *  ",
+  str "  *** ",
+  str "   *  "]
 blockW = vBox [
-  str "XXXXX",
-  str "XXXXX",
-  str "XXXXX"]
+  str "XXXXXX",
+  str "XXXXXX",
+  str "XXXXXX"]
 blockN = vBox [
-  str "?????",
-  str "?????",
-  str "?????"]
+  str "      ",
+  str "   ?  ",
+  str "      "]
 blockE = vBox [
-  str "     ",
-  str "     ",
-  str "     "]
+  str "      ",
+  str "      ",
+  str "      "]
 blockC = vBox [
-  str "  *  ",
-  str "\\| | ",
-  str "  =  "]
+  str "   *  ",
+  str " \\| | ",
+  str "   =  "]
