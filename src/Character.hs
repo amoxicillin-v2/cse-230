@@ -13,6 +13,8 @@ data Character = NewCharacter
 data GameStatus = MkGameStatus {
     board:: [[Block]],
     character:: Character,
+    gameOver :: Bool, 
+    gameInfo :: String,
     tick :: Int
 }
 
