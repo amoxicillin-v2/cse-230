@@ -12,7 +12,8 @@ data Character = NewCharacter
 
 data GameStatus = MkGameStatus {
     board:: [[Block]],
-    character:: Character
+    character:: Character,
+    tick :: Int
 }
 
 setRowAt :: [Block] -> Int -> Block -> [Block]
@@ -32,20 +33,20 @@ upDateCharacter character neighborBlock = NewCharacter
 
 printCharacterBlockInteract:: Character -> Block -> IO ()
 printCharacterBlockInteract character (MonsterBlock attack) = do
-    putStrLn ("Encounter a monster health drop by " ++ show (abs attack))
+    -- putStrLn ("Encounter a monster health drop by " ++ show (abs attack))
     return ()
 printCharacterBlockInteract character _ = do
-    putStrLn ("do nothing")
+    -- putStrLn ("do nothing")
     return ()
 
 
 -- move character to destination (destX, destY)
-move :: [[Block]] -> Character -> Int -> Int -> IO ([[Block]], Character)
+move :: [[Block]] -> Character -> Int -> Int -> ([[Block]], Character)
 move board character destY destX = do
   
   let val = isValid (board !! 2 !! 1)
   -- print the interaction between monster and block
-  printCharacterBlockInteract character (board!!destY!!destX)
+  -- printCharacterBlockInteract character (board!!destY!!destX)
 
   -- check the block type to decide whether I need to move or update
   let y0 = yPos character
@@ -66,7 +67,7 @@ move board character destY destX = do
   let newBoard2 = setBoardVal newBoard1 y0 x0 EmptyBlock
   
   -- TODO: build new board and character
-  return (newBoard2, newCharacter) -- return new board an character
+  (newBoard2, newCharacter) -- return new board an character
 
 
 ---- Some testing code

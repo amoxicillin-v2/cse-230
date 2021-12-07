@@ -15,9 +15,9 @@ import Control.Monad
 import Control.Concurrent
 import Graphics.Vty
 
-run :: [[Block]] -> Maybe Character -> IO ()
+run :: [[Block]] -> Maybe Character -> Int -> IO ()
 -- initialize character if not present
-run board Nothing = do
+run board Nothing tick = do
   let character =
         NewCharacter
           { health = 6,
@@ -26,53 +26,13 @@ run board Nothing = do
             yPos = 0,
             xPos = 0
           }
-  run board (Just character)
+  run board (Just character) tick
   return ()
-run board (Just character) = do
-  -- TODO: init brick app
-  Printer.printLevel board character
-  Printer.printPrompt "\nw/s/a/d>"
-
-  -- get input
-  hSetBuffering stdin NoBuffering
-  hSetBuffering stdout NoBuffering
-  action <- getChar
-  hSetBuffering stdin LineBuffering
-  hSetBuffering stdout LineBuffering
-  -- check valid move
-  let (NewCharacter _ _ _ y x) = character
-  let y1
-        | action == 'w' = y -1
-        | action == 's' = y + 1
-        | otherwise = y
-  let x1
-        | action == 'a' = x -1
-        | action == 'd' = x + 1
-        | otherwise = x
-  let height = length board
-  let width = length (head board)
-  if y1 >= height || y1 < 0 || x1 >= width || x1 < 0 || not (Block.isValid (board !! y1 !! x1)) -- if not valid move
-    then do {putStrLn "\ninvalid move"; run board (Just character)}
-    else do
-      putStrLn "\nvalid move"
-      -- valid move
-      (board1, character1) <- Character.move board character y1 x1
-      brickMain (MkGameStatus board1 character1)
-      -- check gameover, goal
-      let (NewCharacter health _ _ y2 x2) = character1
-      if health < 0
-        then do
-          putStrLn "Game Over"
-          return () -- game over
-        else
-          if Block.isGoal (board1 !! y2 !! x2)
-            then do
-              putStrLn "Game Clear"
-              return () -- game clear
-            else do
-              -- continue event loop
-              run board (Just character1)
-              return ()
+run board (Just character) tick = do
+  -- init brick app
+  brickMain (MkGameStatus board character tick)
+  -- Printer.printLevel board character
+  -- Printer.printPrompt "\nw/s/a/d>"
 
 data Tick = Tick
 brickMain :: GameStatus -> IO ()
@@ -99,45 +59,46 @@ app = App {
 
 control :: GameStatus -> BrickEvent n Tick -> EventM n (Next GameStatus)
 control s ev = case ev of
-  -- T.VtyEvent (V.EvKey V.KUp   _)  -> brickMove s 'w'
-  -- T.VtyEvent (V.EvKey V.KDown _)  -> brickMove s 's'
-  -- T.VtyEvent (V.EvKey V.KLeft _)  -> brickMove s 'a'
-  -- T.VtyEvent (V.EvKey V.KRight _) -> brickMove s 'd'
-  -- T.VtyEvent (V.EvKey V.KEsc _)   -> Brick.halt s
-  _                               -> Brick.halt s
+  T.VtyEvent (V.EvKey V.KUp   _)  -> brickMove s 'w'
+  T.VtyEvent (V.EvKey V.KDown _)  -> brickMove s 's'
+  T.VtyEvent (V.EvKey V.KLeft _)  -> brickMove s 'a'
+  T.VtyEvent (V.EvKey V.KRight _) -> brickMove s 'd'
+  T.VtyEvent (V.EvKey V.KEsc _)   -> Brick.halt s
+  _                               -> Brick.continue s
 
--- brickMove :: GameStatus -> Char -> EventM n (Next GameStatus)
--- brickMove gameStatus action = do
---   -- check valid move
---   let (MkGameStatus board character) = gameStatus
---   let (NewCharacter _ _ _ y x) = character
---   let y1
---         | action == 'w' = y -1
---         | action == 's' = y + 1
---         | otherwise = y
---   let x1
---         | action == 'a' = x -1
---         | action == 'd' = x + 1
---         | otherwise = x
---   let height = length board
---   let width = length (head board)
---   if y1 >= height || y1 < 0 || x1 >= width || x1 < 0 || not (Block.isValid (board !! y1 !! x1)) -- if not valid move
---     then do {return Brick.continue gameStatus}
---     else do
---       -- valid move
---       (board1, character1) <- Character.move board character y1 x1
---       -- check gameover, goal
---       let (NewCharacter health _ _ y2 x2) = character1
---       if health < 0
---         then do
---           putStrLn "Game Over"
---           return Brick.halt gameStatus -- game over
---         else
---           if Block.isGoal (board1 !! y2 !! x2)
---             then do
---               putStrLn "Game Clear"
---               return Brick.halt gameStatus -- game clear
---             else do
---               -- continue event loop
---               run board (Just character1)
---               Brick.continue gameStatus
+brickMove :: GameStatus -> Char -> EventM n (Next GameStatus)
+brickMove gameStatus action = do
+  -- check valid move
+  let (MkGameStatus board character tick) = gameStatus
+  let tick1 = tick + 1
+  let (NewCharacter _ _ _ y x) = character
+  let y1
+        | action == 'w' = y -1
+        | action == 's' = y + 1
+        | otherwise = y
+  let x1
+        | action == 'a' = x -1
+        | action == 'd' = x + 1
+        | otherwise = x
+  let height = length board
+  let width = length (head board)
+  if y1 >= height || y1 < 0 || x1 >= width || x1 < 0 || not (Block.isValid (board !! y1 !! x1)) -- if not valid move
+    then Brick.continue gameStatus
+    else do
+      -- valid move
+      let (board1, character1) = Character.move board character y1 x1
+      -- check gameover, goal
+      let (NewCharacter health _ _ y2 x2) = character1
+      if health < 0
+        then do
+          -- putStrLn "Game Over"
+          Brick.halt gameStatus -- game over
+        else
+          if Block.isGoal (board1 !! y2 !! x2)
+            then do
+              -- putStrLn "Game Clear"
+              Brick.halt gameStatus -- game clear
+            else do
+              -- continue event loop
+              -- run board (Just character1)
+              Brick.continue (MkGameStatus board1 character1 tick1)

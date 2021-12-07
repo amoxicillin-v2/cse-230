@@ -32,3 +32,4 @@ run = do
               [WallBlock {}, WallBlock, WallBlock {}, WallBlock {}]
             ]
             Nothing
+            0
