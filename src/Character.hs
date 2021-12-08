@@ -46,6 +46,7 @@ createGameInfo character y x (MonsterBlock attack) = if newHealth > 0
     then "Meet a monster at " ++ (positionToString y x) ++ " health dropped by " ++ (show (abs attack)) ++ "."
     else "You die (Game Over)."
     where newHealth = (health character) + attack
+createGameInfo  _ y x (TreasureBlock val) = "Find a treasure at position " ++ (positionToString y x) ++ ". Health increases by " ++ show(val) ++ "."
 createGameInfo _ y x GoalBlock = "Find the treasure. (You win.)"
 
 
@@ -153,12 +154,12 @@ debugPrintFunc newStatus = do
 --- Continue!
 ---
 
-runTooEnd::[[Block]] -> Character -> GameStatus
-runTooEnd testBoard testCharacter = move (board newStatus) (character newStatus) 1 1
+runTooEnd2::[[Block]] -> Character -> GameStatus
+runTooEnd2 testBoard testCharacter = move (board newStatus) (character newStatus) 1 1
     where
     newStatus = move testBoard testCharacter 0 1
     
---- >>> newStatus = runTooEnd testBoard2 testCharacter
+--- >>> newStatus = runTooEnd2 testBoard2 testCharacter
 --- >>> debugPrintFunc newStatus
 --- EmptyBlock, 
 --- EmptyBlock, 
@@ -169,4 +170,18 @@ runTooEnd testBoard testCharacter = move (board newStatus) (character newStatus)
 --- Find the treasure. (You win.)
 --- Game Over!! You win!
 ---
+treasureBlock1::Block
+treasureBlock1 = TreasureBlock {
+    value = 10
+}
+testBoard3 :: [[Block]]
+testBoard3 = [[CharacterBlock, monsterBlock2], [GoalBlock, treasureBlock1]]
 
+runTooEnd3 :: [[Block]] -> Character -> GameStatus
+runTooEnd3 testBoard testCharacter = move (board newStatus2) (character newStatus2) 1 0
+    where
+    newStatus1 = move testBoard testCharacter 0 1
+    newStatus2 = move (board newStatus1) (character newStatus1) 1 1
+    
+--- >>> newStatus = runTooEnd3 testBoard3 testCharacter
+--- >>> debugPrintFunc newStatus

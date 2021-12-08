@@ -5,7 +5,9 @@ data Block
   | GoalBlock {}
   | WallBlock {}
   | MonsterBlock {attack :: Int}
+  | TreasureBlock {value:: Int}
   | CharacterBlock {} deriving Show
+
 
 
 -- func icon(block: Block, outFov: Bool) -> [Char]
