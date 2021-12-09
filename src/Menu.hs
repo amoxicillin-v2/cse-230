@@ -4,6 +4,7 @@ import Block
 import GameLevel
 import Printer
 import System.IO
+import Config (loadBoard, rawNums, rawBlocks)
 
 run :: IO ()
 run = do
@@ -21,15 +22,16 @@ run = do
   if choice == "q"
     then return ()
     else
-      if choice /= "1" && choice /= "2"
-        then Menu.run
-        else do
+      if choice == "1"
+        then do
           putStrLn ("\nEntering level: " ++ choice)
-          GameLevel.run
-            [ [CharacterBlock {}, EmptyBlock {}, WallBlock {}, WallBlock {}],
-              [EmptyBlock {}, GoalBlock {}, WallBlock {}, WallBlock {}],
-              [EmptyBlock {}, MonsterBlock {attack = 99}, WallBlock {}, WallBlock {}],
-              [WallBlock {}, WallBlock, WallBlock {}, WallBlock {}]
-            ]
+          GameLevel.run (loadBoard (head rawBlocks) (head rawNums))
             Nothing
             0
+      else if choice == "2"
+        then do
+          putStrLn ("\nEntering level: " ++ choice)
+          GameLevel.run (loadBoard (rawBlocks!!1) (rawNums!!1))
+            Nothing
+            0
+      else Menu.run

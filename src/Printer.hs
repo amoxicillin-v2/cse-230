@@ -123,10 +123,10 @@ drawBlock GoalBlock _ = center blockG
 drawBlock CharacterBlock _ = center blockC
 drawBlock _ True = centerWith (Just ' ') blockN
 drawBlock EmptyBlock False = center blockE
-drawBlock CharacterBlock False = center blockE
+-- drawBlock CharacterBlock False = center blockE
 drawBlock WallBlock False = centerWith (Just 'X') blockW
 drawBlock (MonsterBlock _) False = center blockM
--- drawBlock (TreatureBlock _) False = center blockT
+drawBlock (TreasureBlock _) False = center blockT
 
 drawLine :: [Block] -> Int -> Int -> Int -> [Widget String]
 drawLine [] _ _ _ = []

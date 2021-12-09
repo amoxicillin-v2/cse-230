@@ -31,14 +31,16 @@ run board Nothing tick = do
 run board (Just character0) tick = do
   -- init brick app
   result <- brickMain (MkGameStatus board character0 False "" tick) -- enter event loop with initial gameState
-  putStrLn (gameInfo result)
-  if health (character result) > 0
-    then do
-      putStrLn "Game Clear. You win!"
+  if not (gameOver result)
+    then return ()
   else do
-    putStrLn "Game Over"
+    if health (character result) > 0
+      then do
+        putStrLn "Game Clear. You win!"
+    else do
+      putStrLn "Game Over"
 
-  return ()
+    return ()
 
 data Tick = Tick
 
