@@ -13,7 +13,7 @@ data Character = NewCharacter
 data GameStatus = MkGameStatus {
     board:: [[Block]],
     character:: Character,
-    gameClear :: Bool, 
+    gameOver :: Bool, 
     gameInfo :: String,
     tick :: Int
 }
@@ -55,7 +55,7 @@ move :: [[Block]] -> Character -> Int -> Int -> GameStatus
 move board character destY destX = MkGameStatus {
     board=newBoard2,
     character=newCharacter,
-    gameClear=gameClear, 
+    gameOver=gameOver, 
     gameInfo=info,
     tick=0
   }
@@ -70,7 +70,7 @@ move board character destY destX = MkGameStatus {
                                  yPos = destY, 
                                  xPos = destX}
 
-    gameClear = (isGoal (board!!destY!!destX))
+    gameOver = (isGoal (board!!destY!!destX)) || health newCharacter <= 0
     newBoard2 = setBoardVal newBoard1 y0 x0 EmptyBlock
     newBoard1 = setBoardVal board destY destX CharacterBlock
   
@@ -136,7 +136,7 @@ debugPrintFunc newStatus = do
     let info = (gameInfo newStatus)
     putStrLn info
 
-    let gO = (gameClear newStatus)
+    let gO = (gameOver newStatus)
     if gO 
         then putStrLn "Game Over!! You win!"
         else putStrLn "Continue!" 

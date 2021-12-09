@@ -28,13 +28,13 @@ run board Nothing tick = do
           }
   run board (Just character) tick
   return ()
-run board (Just character) tick = do
+run board (Just character0) tick = do
   -- init brick app
-  result <- brickMain (MkGameStatus board character False "" tick) -- enter event loop with initial gameState
+  result <- brickMain (MkGameStatus board character0 False "" tick) -- enter event loop with initial gameState
   putStrLn (gameInfo result)
-  if gameClear result
+  if health (character result) > 0
     then do
-      putStrLn "Game Clear"
+      putStrLn "Game Clear. You win!"
   else do
     putStrLn "Game Over"
 
@@ -75,7 +75,7 @@ control s ev = case ev of
 brickMove :: GameStatus -> Char -> EventM n (Next GameStatus)
 brickMove gameStatus action = do
   -- check valid move
-  let (MkGameStatus board character gameClear gameInfo tick) = gameStatus
+  let (MkGameStatus board character gameOver gameInfo tick) = gameStatus
   let tick1 = tick + 1
   let (NewCharacter _ _ _ y x) = character
   let y1
@@ -88,18 +88,17 @@ brickMove gameStatus action = do
         | otherwise = x
   let height = length board
   let width = length (head board)
-  if y1 >= height || y1 < 0 || x1 >= width || x1 < 0 || not (Block.isValid (board !! y1 !! x1)) -- if not valid move
+  if gameOver || y1 >= height || y1 < 0 || x1 >= width || x1 < 0 || not (Block.isValid (board !! y1 !! x1)) -- if not valid move / gameOver
     then Brick.continue gameStatus
     else do
       -- valid move
       let gameStatus1@(MkGameStatus board1 character1 _ _ _) = Character.move board character y1 x1
       -- check gameover, goal
       let (NewCharacter health _ _ y2 x2) = character1
-      if health < 0 || gameClear
-        then do
-          -- putStrLn "Game Over / Game Clear"
-          Brick.halt gameStatus1 -- game over
-        else do
-          -- continue event loop
-          -- run board (Just character1)
-          Brick.continue gameStatus1
+      -- continue event loop
+      Brick.continue gameStatus1
+      -- if gameOver
+      --   then do
+      --     -- putStrLn "Game Over / Game Clear"
+      --     Brick.halt gameStatus1 -- game over
+      --   else do
