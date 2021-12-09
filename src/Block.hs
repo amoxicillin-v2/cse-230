@@ -29,6 +29,7 @@ isGoal _ = False
 
 damage :: Block -> Int
 damage (MonsterBlock attack) = attack
+damage (TreasureBlock value) = value
 damage _ = 0
 
 
