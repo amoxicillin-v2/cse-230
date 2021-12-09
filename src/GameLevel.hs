@@ -30,7 +30,7 @@ run board Nothing tick = do
   return ()
 run board (Just character0) tick = do
   -- init brick app
-  result <- brickMain (MkGameStatus board character0 False "" tick) -- enter event loop with initial gameState
+  result <- brickMain (MkGameStatus board character0 False "" tick False) -- enter event loop with initial gameState
   if not (gameOver result)
     then return ()
   else do
@@ -50,7 +50,7 @@ brickMain gameStatus = do
   forkIO $
     forever $ do
       writeBChan chan Tick
-      threadDelay 100000 -- decides how fast your game moves
+      threadDelay 1000000 -- decides how fast your game moves
   let buildVty = V.mkVty V.defaultConfig
   initialVty <- buildVty
   customMain initialVty buildVty (Just chan) app gameStatus
@@ -67,18 +67,28 @@ app =
 
 control :: GameStatus -> BrickEvent n Tick -> EventM n (Next GameStatus)
 control s ev = case ev of
+  AppEvent Tick -> brickTick s
   T.VtyEvent (V.EvKey V.KUp _) -> brickMove s 'w'
   T.VtyEvent (V.EvKey V.KDown _) -> brickMove s 's'
   T.VtyEvent (V.EvKey V.KLeft _) -> brickMove s 'a'
   T.VtyEvent (V.EvKey V.KRight _) -> brickMove s 'd'
   T.VtyEvent (V.EvKey V.KEsc _) -> Brick.halt s
+  T.VtyEvent (V.EvKey (V.KChar 'h') _) -> brickHelp s
   _ -> Brick.continue s
 
+brickTick :: GameStatus -> EventM n (Next GameStatus)
+brickTick (MkGameStatus board character gameOver gameInfo tick help) = Brick.continue (MkGameStatus board character gameOver gameInfo ((tick + 1) `mod` 2) help)
+
+brickHelp :: GameStatus -> EventM n (Next GameStatus)
+brickHelp (MkGameStatus board character gameOver gameInfo tick True) = Brick.continue (MkGameStatus board character gameOver gameInfo tick False)
+brickHelp (MkGameStatus board character gameOver gameInfo tick False) = Brick.continue (MkGameStatus board character gameOver gameInfo tick True)
+
 brickMove :: GameStatus -> Char -> EventM n (Next GameStatus)
+brickMove gameStatus@(MkGameStatus _ _ _ _ _ True) _ = Brick.continue gameStatus
 brickMove gameStatus action = do
   -- check valid move
-  let (MkGameStatus board character gameOver gameInfo tick) = gameStatus
-  let tick1 = tick + 1
+  let (MkGameStatus board character gameOver gameInfo tick help) = gameStatus
+  --let tick1 = tick + 1
   let (NewCharacter _ _ _ y x) = character
   let y1
         | action == 'w' = y -1
@@ -94,7 +104,8 @@ brickMove gameStatus action = do
     then Brick.continue gameStatus
     else do
       -- valid move
-      let gameStatus1@(MkGameStatus board1 character1 _ _ _) = Character.move board character y1 x1
+      -- let gameStatus1@(MkGameStatus board1 character1 _ _ _ _) = Character.move board character y1 x1
+      let gameStatus1@(MkGameStatus board1 character1 _ _ _ _) = Character.move gameStatus y1 x1
       -- check gameover, goal
       let (NewCharacter health _ _ y2 x2) = character1
       -- continue event loop

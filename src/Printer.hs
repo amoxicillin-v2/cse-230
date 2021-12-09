@@ -2,7 +2,7 @@ module Printer where
 
 import System.IO
 import Block
-import Character (GameStatus, character, board, gameInfo, Character (NewCharacter), health, stepCount, fov, xPos, yPos)
+import Character (GameStatus (MkGameStatus), character, board, gameInfo, Character (NewCharacter), health, stepCount, fov, xPos, yPos, tick)
 import Brick
 import Brick.Widgets.Border (borderWithLabel, vBorder, hBorder)
 import Brick.Widgets.Border.Style (unicode)
@@ -118,27 +118,35 @@ drawCharacter cha = do
     str ("FOV: " ++ f),
     str "-------------------"]
 
-drawBlock :: Block -> Bool -> Widget String
-drawBlock GoalBlock _ = center blockG
-drawBlock CharacterBlock _ = center blockC
-drawBlock _ True = centerWith (Just ' ') blockN
-drawBlock EmptyBlock False = center blockE
--- drawBlock CharacterBlock False = center blockE
-drawBlock WallBlock False = centerWith (Just 'X') blockW
-drawBlock (MonsterBlock _) False = center blockM
-drawBlock (TreasureBlock _) False = center blockT
+drawBlock :: Block -> Bool -> Int -> Widget String
+drawBlock CharacterBlock _ 0 = center blockC
+drawBlock CharacterBlock _ _ = center blockC1
+drawBlock GoalBlock _ 0 = center blockG
+drawBlock GoalBlock _ _ = center blockG1
+--drawBlock GoalBlock _ 2 = center blockG
+drawBlock _ True 0 = centerWith (Just ' ') blockN
+drawBlock _ True _ = centerWith (Just ' ') blockN1
+--drawBlock _ True 2 = centerWith (Just ' ') blockN
+drawBlock EmptyBlock False _ = center blockE
+drawBlock WallBlock False _ = centerWith (Just 'X') blockW
+drawBlock (MonsterBlock _) False 0 = center blockM
+drawBlock (MonsterBlock _) False _ = center blockM1
+--drawBlock (MonsterBlock 2) False _ = center blockM
+drawBlock (TreasureBlock _) False 0 = center blockT
+drawBlock (TreasureBlock _) False _ = center blockT1
+--drawBlock (TreasureBlock 2) False _ = center blockT
 
-drawLine :: [Block] -> Int -> Int -> Int -> [Widget String]
-drawLine [] _ _ _ = []
-drawLine (b : remain) left right current = do
-  if (current >= left && current <= right) then (drawBlock b False) : (drawLine remain left right (current + 1))
-  else (drawBlock b True) : (drawLine remain left right (current + 1))
+drawLine :: [Block] -> Int -> Int -> Int -> Int -> [Widget String]
+drawLine [] _ _ _ _ = []
+drawLine (b : remain) left right current tik = do
+  if (current >= left && current <= right) then (drawBlock b False tik) : (drawLine remain left right (current + 1) tik)
+  else (drawBlock b True tik) : (drawLine remain left right (current + 1) tik)
 
-drawMaze :: [[Block]] -> Int -> Int -> Int -> Int -> Int -> [Widget String]
-drawMaze [] _ _ _ _ _ = []
-drawMaze (bs : remain)left right up down current = do
-  if (current >= up && current <= down) then (hLine (drawLine bs left right 0)) : (drawMaze remain left right up down (current + 1))
-  else (hLine (drawLine bs 0 0 1)) : (drawMaze remain left right up down (current + 1))
+drawMaze :: [[Block]] -> Int -> Int -> Int -> Int -> Int -> Int -> [Widget String]
+drawMaze [] _ _ _ _ _ _ = []
+drawMaze (bs : remain)left right up down current tik= do
+  if (current >= up && current <= down) then (hLine (drawLine bs left right 0 tik)) : (drawMaze remain left right up down (current + 1) tik)
+  else (hLine (drawLine bs 0 0 1 tik)) : (drawMaze remain left right up down (current + 1) tik)
 
 hLine :: [Widget n] -> Widget n
 hLine (b:bs) = hBox (b : [vBorder <+> b | b <- bs])
@@ -149,6 +157,7 @@ vLine (b:bs) = vBox (b : [hBorder <=> b | b <- bs])
 vLine _      = emptyWidget
 
 drawGame :: GameStatus -> [Widget String]
+drawGame (MkGameStatus _ _ _ _ _ True) = [helpDoc]
 drawGame gs = do
   let cha = character gs
   let b = board gs
@@ -156,24 +165,37 @@ drawGame gs = do
   let right = (xPos cha) + (fov cha)
   let up = (yPos cha) - (fov cha)
   let down = (yPos cha) + (fov cha)
+  let tik = (tick gs)
   [vBox [
     hCenter (drawCharacter cha),
-    center (vLine (drawMaze b left right up down 0)),
+    center (vLine (drawMaze b left right up down 0 tik)),
     hCenter (str (gameInfo gs))]]
 
-blockM, blockT, blockG, blockN, blockE, blockW, blockC:: Widget n
+blockM, blockM1, blockT, blockT1, blockG, blockG1, blockN, blockN1, blockE, blockW, blockC, blockC1, helpDoc:: Widget n
 blockM = vBox [
   str "  X X ",
   str "   A  ",
   str "  VWV "]
+blockM1 = vBox [
+  str " X X  ",
+  str "  A   ",
+  str " ===  "]
 blockG = vBox [
   str " ||>  ",
   str " ||> >",
+  str " ||   "]
+blockG1 = vBox [
+  str " ||> >",
+  str " ||>  ",
   str " ||   "]
 blockT = vBox [
   str "   *  ",
   str "  *** ",
   str "   *  "]
+blockT1 = vBox [
+  str "  * * ",
+  str "   *  ",
+  str "  * * "]
 blockW = vBox [
   str "XXXXXX",
   str "XXXXXX",
@@ -182,6 +204,10 @@ blockN = vBox [
   str "      ",
   str "   ?  ",
   str "      "]
+blockN1 = vBox [
+  str " ?   ?",
+  str "      ",
+  str " ?   ?"]
 blockE = vBox [
   str "      ",
   str "      ",
@@ -190,3 +216,29 @@ blockC = vBox [
   str "   *  ",
   str " \\| | ",
   str "   =  "]
+blockC1 = vBox [
+  str "   *  ",
+  str " /| | ",
+  str "   =  "]
+
+helpDoc = vLine [
+  vBox [ str "Here is the help document",
+  str "To control the character, you can use 'up' 'down' 'left' 'right' key",
+  str "to control the movement. Whenever you want to exit the game you can ",
+  str "simply press 'ESC' key. ",
+  str "  ",
+  str "The rule of this game is that you should control the character to reach",
+  str "the goal block of the maze. The maze is quite dark so the character can ",
+  str "only see a limited range of blocks around him. And remember there are many",
+  str "monsters in this maze, they are trying to stop you from wining this game,",
+  str "and everytime you figtht with a monster, you will lose some health. But don't",
+  str "worry, there are also lots of treasures in the maze, which can help you to gain",
+  str "the health!"],
+  hLine [blockM, blockM1, str "This is a monster block"],
+  hLine [blockT, blockT1, str "This is a treasure block"],
+  hLine [blockG, blockG1, str "This is a goal block"],
+  hLine [blockW, str "This is a wall block"],
+  hLine [blockN, blockN1, str "This is a block out of the vision, so you cannot see what's in it"],
+  hLine [blockC, blockC1, str "This is a the character controlled by you"],
+  vBox [str "                          ",
+  str "To go back to the game, simply press 'h' key"]]

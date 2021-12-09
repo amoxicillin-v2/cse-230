@@ -15,7 +15,8 @@ data GameStatus = MkGameStatus {
     character:: Character,
     gameOver :: Bool, 
     gameInfo :: String,
-    tick :: Int
+    tick :: Int,
+    help :: Bool
 }
 
 -- Functions to change the board
@@ -51,13 +52,15 @@ createGameInfo _ y x GoalBlock = "Find the treasure. (You win.)"
 
 
 -- move character to destination (destX, destY)
-move :: [[Block]] -> Character -> Int -> Int -> GameStatus
-move board character destY destX = MkGameStatus {
+move :: GameStatus -> Int -> Int -> GameStatus
+--move :: [[Block]] -> Character -> Int -> Int -> GameStatus
+move (MkGameStatus board character _ _ tik h) destY destX = MkGameStatus {
     board=newBoard2,
     character=newCharacter,
     gameOver=gameOver, 
     gameInfo=info,
-    tick=0
+    tick=tik,
+    help=h
   }
   where 
     y0 = yPos character
@@ -155,9 +158,7 @@ debugPrintFunc newStatus = do
 ---
 
 runTooEnd2::[[Block]] -> Character -> GameStatus
-runTooEnd2 testBoard testCharacter = move (board newStatus) (character newStatus) 1 1
-    where
-    newStatus = move testBoard testCharacter 0 1
+runTooEnd2 testBoard testCharacter = move (MkGameStatus testBoard testCharacter False "" 0 False) 1 1
     
 --- >>> newStatus = runTooEnd2 testBoard2 testCharacter
 --- >>> debugPrintFunc newStatus
@@ -177,11 +178,11 @@ treasureBlock1 = TreasureBlock {
 testBoard3 :: [[Block]]
 testBoard3 = [[CharacterBlock, monsterBlock2], [GoalBlock, treasureBlock1]]
 
-runTooEnd3 :: [[Block]] -> Character -> GameStatus
-runTooEnd3 testBoard testCharacter = move (board newStatus2) (character newStatus2) 1 0
-    where
-    newStatus1 = move testBoard testCharacter 0 1
-    newStatus2 = move (board newStatus1) (character newStatus1) 1 1
+-- runTooEnd3 :: [[Block]] -> Character -> GameStatus
+-- runTooEnd3 testBoard testCharacter = move (MkGameStatus testBoard testCharacter 1 0
+--    where
+--    newStatus1 = move testBoard testCharacter 0 1
+--    newStatus2 = move (board newStatus1) (character newStatus1) 1 1
     
 --- >>> newStatus = runTooEnd3 testBoard3 testCharacter
 --- >>> debugPrintFunc newStatus
