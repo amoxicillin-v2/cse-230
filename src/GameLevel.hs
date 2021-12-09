@@ -32,7 +32,7 @@ run board (Just character) tick = do
   -- init brick app
   result <- brickMain (MkGameStatus board character False "" tick) -- enter event loop with initial gameState
   putStrLn (gameInfo result)
-  if gameOver result
+  if gameClear result
     then do
       putStrLn "Game Clear"
   else do
@@ -92,14 +92,14 @@ brickMove gameStatus action = do
     then Brick.continue gameStatus
     else do
       -- valid move
-      let (board1, character1) = Character.move board character y1 x1
+      let gameStatus1@(MkGameStatus board1 character1 _ _ _) = Character.move board character y1 x1
       -- check gameover, goal
       let (NewCharacter health _ _ y2 x2) = character1
       if health < 0 || gameClear
         then do
           -- putStrLn "Game Over / Game Clear"
-          Brick.halt gameStatus -- game over
+          Brick.halt gameStatus1 -- game over
         else do
           -- continue event loop
           -- run board (Just character1)
-          Brick.continue (MkGameStatus board1 character1 False "" tick1)
+          Brick.continue gameStatus1

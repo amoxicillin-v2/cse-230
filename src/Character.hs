@@ -13,7 +13,7 @@ data Character = NewCharacter
 data GameStatus = MkGameStatus {
     board:: [[Block]],
     character:: Character,
-    gameOver :: Bool, 
+    gameClear :: Bool, 
     gameInfo :: String,
     tick :: Int
 }
@@ -45,7 +45,7 @@ createGameInfo  _ y x EmptyBlock = "Move to position" ++ (positionToString y x) 
 createGameInfo character y x (MonsterBlock attack) = if newHealth > 0 
     then "Meet a monster at " ++ (positionToString y x) ++ " health dropped by " ++ (show (abs attack)) ++ "."
     else "You die (Game Over)."
-    where newHealth = (health character) + attack
+    where newHealth = (health character) - attack
 createGameInfo  _ y x (TreasureBlock val) = "Find a treasure at position " ++ (positionToString y x) ++ ". Health increases by " ++ show(val) ++ "."
 createGameInfo _ y x GoalBlock = "Find the treasure. (You win.)"
 
@@ -55,7 +55,7 @@ move :: [[Block]] -> Character -> Int -> Int -> GameStatus
 move board character destY destX = MkGameStatus {
     board=newBoard2,
     character=newCharacter,
-    gameOver=gameOver, 
+    gameClear=gameClear, 
     gameInfo=info,
     tick=0
   }
@@ -64,13 +64,13 @@ move board character destY destX = MkGameStatus {
     x0 = xPos character
     health0 = health character
     info = createGameInfo character destY destX (board!!destY!!destX)
-    newCharacter = NewCharacter {health =  health0 + (damage (board!!destY!!destX)),
+    newCharacter = NewCharacter {health =  health0 - (damage (board!!destY!!destX)),
                                  stepCount = (stepCount character), 
                                  fov = (fov character), 
                                  yPos = destY, 
                                  xPos = destX}
 
-    gameOver = (isGoal (board!!destY!!destX))
+    gameClear = (isGoal (board!!destY!!destX))
     newBoard2 = setBoardVal newBoard1 y0 x0 EmptyBlock
     newBoard1 = setBoardVal board destY destX CharacterBlock
   
@@ -136,7 +136,7 @@ debugPrintFunc newStatus = do
     let info = (gameInfo newStatus)
     putStrLn info
 
-    let gO = (gameOver newStatus)
+    let gO = (gameClear newStatus)
     if gO 
         then putStrLn "Game Over!! You win!"
         else putStrLn "Continue!" 

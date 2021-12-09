@@ -26,7 +26,7 @@ run = do
         else do
           putStrLn ("\nEntering level: " ++ choice)
           GameLevel.run
-            [ [EmptyBlock {}, EmptyBlock {}, WallBlock {}, WallBlock {}],
+            [ [CharacterBlock {}, EmptyBlock {}, WallBlock {}, WallBlock {}],
               [EmptyBlock {}, GoalBlock {}, WallBlock {}, WallBlock {}],
               [EmptyBlock {}, MonsterBlock {attack = 99}, WallBlock {}, WallBlock {}],
               [WallBlock {}, WallBlock, WallBlock {}, WallBlock {}]
