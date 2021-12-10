@@ -198,25 +198,23 @@ blockC = vBox [
 blockC1 = vBox [
   str "💃"]
 
-helpDoc = border $ vLine [
+helpDoc = vLine [
   vBox [ str "Here is the help document",
   str "  ",
   str "To control the character, you can use 'up' 'down' 'left' 'right' key",
   str "to control the movement. Whenever you want to exit the game you can ",
   str "simply press 'ESC' key. ",
   str "  ",
-  str "The rule of this game is that you should control the character to reach",
-  str "the goal block of the maze. The maze is quite dark so the character can ",
-  str "only see a limited range of blocks around him. And remember there are many",
-  str "monsters in this maze, they are trying to stop you from wining this game,",
-  str "and everytime you figtht with a monster, you will lose some health. But don't",
-  str "worry, there are also lots of treasures in the maze, which can help you to gain",
-  str "the health!"],
+  str "In the game you should control the character to reach the goal block of the maze.",
+  str "The maze is quite dark so the character can only see a limited range of blocks around him.",
+  str "And remember there are monsters in this maze, they are trying to stop you from wining the game,",
+  str "and everytime you figtht with a monster, you will lose some health. But don't worry,",
+  str "there are also lots of treasures in the maze, which can help you to gain the health!"],
   hLine [blockM, blockM1, str "This is a monster block, reaching it will decrease the health of your character."],
   hLine [blockT, blockT1, str "This is a treasure block, reaching it will increase the healthh of your character."],
-  hLine [blockG,  str "This is a goal block, once you reach it, you win the game!"],
+  hLine [blockG, str "This is a goal block, once you reach it, you win the game!"],
   hLine [blockW, str "This is a wall block, there is no way you can reach or cross it."],
-  hLine [blockN,  str "This is a block out of the vision, so you cannot see what's in it."],
-  hLine [blockC,  str "This is the character controlled by you."],
+  hLine [blockN, str "This is a block out of the vision, so you cannot see what's in it."],
+  hLine [blockC, blockC1, str "This is the character controlled by you."],
   vBox [str "                          ",
   str "To go back to the game, simply press 'h' key"]]
