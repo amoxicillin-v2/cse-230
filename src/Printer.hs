@@ -196,10 +196,11 @@ blockE = vBox [
 blockC = vBox [
   str "🤺"]
 blockC1 = vBox [
-  str "🤺"]
+  str "💃"]
 
 helpDoc = vLine [
   vBox [ str "Here is the help document",
+  str "  ",
   str "To control the character, you can use 'up' 'down' 'left' 'right' key",
   str "to control the movement. Whenever you want to exit the game you can ",
   str "simply press 'ESC' key. ",
@@ -211,11 +212,11 @@ helpDoc = vLine [
   str "and everytime you figtht with a monster, you will lose some health. But don't",
   str "worry, there are also lots of treasures in the maze, which can help you to gain",
   str "the health!"],
-  hLine [blockM, blockM1, str "This is a monster block"],
-  hLine [blockT, blockT1, str "This is a treasure block"],
-  hLine [blockG,  str "This is a goal block"],
-  hLine [blockW, str "This is a wall block"],
-  hLine [blockN,  str "This is a block out of the vision, so you cannot see what's in it"],
-  hLine [blockC,  str "This is a the character controlled by you"],
+  hLine [blockM, blockM1, str "This is a monster block, reaching it will decrease the health of your character."],
+  hLine [blockT, blockT1, str "This is a treasure block, reaching it will increase the healthh of your character."],
+  hLine [blockG,  str "This is a goal block, once you reach it, you win the game!"],
+  hLine [blockW, str "This is a wall block, there is no way you can reach or cross it."],
+  hLine [blockN,  str "This is a block out of the vision, so you cannot see what's in it."],
+  hLine [blockC,  str "This is the character controlled by you."],
   vBox [str "                          ",
   str "To go back to the game, simply press 'h' key"]]
