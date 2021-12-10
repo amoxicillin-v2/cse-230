@@ -166,9 +166,9 @@ drawGame gs = do
   let up = (yPos cha) - (fov cha)
   let down = (yPos cha) + (fov cha)
   let tik = (tick gs)
-  [center $ vBox [
-    hCenter (drawCharacter cha),
-    hCenter (vBox (drawMaze b left right up down 0 tik)),
+  [vBox [center $ vBox [
+    (drawCharacter cha),
+    (vBox (drawMaze b left right up down 0 tik))],
     hCenter (str (gameInfo gs))]]
 
 blockM, blockM1, blockT, blockT1, blockG, blockG1, blockN, blockN1, blockE, blockW, blockC, blockC1, helpDoc:: Widget n
@@ -191,11 +191,11 @@ blockN = vBox [
 blockN1 = vBox [
   str "❓"]
 blockE = vBox [
-  str " "]
+  str "  "]
 blockC = vBox [
-  str "🤖"]
+  str "🤺"]
 blockC1 = vBox [
-  str "🤖"]
+  str "🤺"]
 
 helpDoc = vLine [
   vBox [ str "Here is the help document",
