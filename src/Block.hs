@@ -32,6 +32,17 @@ damage (MonsterBlock attack) = attack
 damage (TreasureBlock value) = -value
 damage _ = 0
 
+isEmptyBlock::Block->Bool
+isEmptyBlock EmptyBlock = True
+isEmptyBlock _ = False
+
+isWallBlock::Block->Bool
+isWallBlock EmptyBlock = True
+isWallBlock _ = False
+
+isCharacterBlock::Block->Bool
+isCharacterBlock CharacterBlock = True
+isCharacterBlock _ = False
 
 -- >>> CharacterBlock
 -- CharacterBlock
