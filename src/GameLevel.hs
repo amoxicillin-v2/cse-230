@@ -15,20 +15,9 @@ import System.Environment
 import System.IO
 import Text.Read
 
-run :: [[Block]] -> Maybe Character -> Int -> IO ()
+run :: [[Block]] -> Character -> Int -> IO ()
 -- initialize character if not present
-run board Nothing tick = do
-  let character =
-        NewCharacter
-          { health = 6,
-            stepCount = 0,
-            fov = 2,
-            yPos = 0,
-            xPos = 0
-          }
-  run board (Just character) tick
-  return ()
-run board (Just character0) tick = do
+run board character0 tick = do
   -- init brick app
   result <- brickMain (MkGameStatus board character0 False "" tick False) -- enter event loop with initial gameState
   if not (gameOver result)

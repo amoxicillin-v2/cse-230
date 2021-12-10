@@ -31,6 +31,13 @@ rawNums =
     ]
   ]
 
+-- initial point of character (y, x)
+characterPos :: [[Int]]
+characterPos =
+  [ [0, 0],
+    [0, 1]
+  ]
+
 loadBoard :: [String] -> [[Int]] -> [[Block]]
 loadBoard (blockline : bls) (numline : nls) = genRow blockline numline : loadBoard bls nls
   where
