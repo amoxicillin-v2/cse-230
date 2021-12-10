@@ -169,7 +169,8 @@ drawGame gs = do
   [vBox [center $ vBox [
     (drawCharacter cha),
     (vBox (drawMaze b left right up down 0 tik))],
-    hCenter (str (gameInfo gs))]]
+    hCenter (str (gameInfo gs)),
+    hCenter (str "For help, you can press 'h'")]]
 
 blockM, blockM1, blockT, blockT1, blockG, blockG1, blockN, blockN1, blockE, blockW, blockC, blockC1, helpDoc:: Widget n
 blockM = vBox [
@@ -212,9 +213,9 @@ helpDoc = vLine [
   str "the health!"],
   hLine [blockM, blockM1, str "This is a monster block"],
   hLine [blockT, blockT1, str "This is a treasure block"],
-  hLine [blockG, blockG1, str "This is a goal block"],
+  hLine [blockG,  str "This is a goal block"],
   hLine [blockW, str "This is a wall block"],
-  hLine [blockN, blockN1, str "This is a block out of the vision, so you cannot see what's in it"],
-  hLine [blockC, blockC1, str "This is a the character controlled by you"],
+  hLine [blockN,  str "This is a block out of the vision, so you cannot see what's in it"],
+  hLine [blockC,  str "This is a the character controlled by you"],
   vBox [str "                          ",
   str "To go back to the game, simply press 'h' key"]]

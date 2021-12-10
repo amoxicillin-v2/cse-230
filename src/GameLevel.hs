@@ -19,7 +19,7 @@ run :: [[Block]] -> Character -> Int -> IO ()
 -- initialize character if not present
 run board character0 tick = do
   -- init brick app
-  result <- brickMain (MkGameStatus board character0 False "" tick False) -- enter event loop with initial gameState
+  result <- brickMain (MkGameStatus board character0 False "Welcome to the Maze game! You can now begin the game!" tick False) -- enter event loop with initial gameState
   if not (gameOver result)
     then return ()
   else do
