@@ -32,6 +32,15 @@ The game will allow the user to walk through the maze (the user can only see par
 w/s/a/d> 
 ```
 
+### Library used
+
+In this project we used several libraries:
+
+Vty: Graphic library used to print out the proper graph
+
+Brick: TUI library, used to build a proper user interface
+
+Containers: Used as a container to contain information.
 
 
 ## Architecture
