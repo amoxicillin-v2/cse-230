@@ -16,7 +16,8 @@ data GameStatus = MkGameStatus {
     gameOver :: Bool, 
     gameInfo :: String,
     tick :: Int,
-    help :: Bool
+    help :: Bool,
+    level :: Int
 }
 
 -- Functions to change the board
@@ -54,13 +55,14 @@ createGameInfo _ y x GoalBlock = "Find the treasure. (You win.)"
 -- move character to destination (destX, destY)
 move :: GameStatus -> Int -> Int -> GameStatus
 --move :: [[Block]] -> Character -> Int -> Int -> GameStatus
-move (MkGameStatus board character _ _ tik h) destY destX = MkGameStatus {
+move (MkGameStatus board character _ _ tik h l) destY destX = MkGameStatus {
     board=newBoard2,
     character=newCharacter,
     gameOver=gameOver, 
     gameInfo=info,
     tick=tik,
-    help=h
+    help=h,
+    level=l
   }
   where 
     y0 = yPos character
@@ -158,7 +160,7 @@ debugPrintFunc newStatus = do
 ---
 
 runTooEnd2::[[Block]] -> Character -> GameStatus
-runTooEnd2 testBoard testCharacter = move (MkGameStatus testBoard testCharacter False "" 0 False) 1 1
+runTooEnd2 testBoard testCharacter = move (MkGameStatus testBoard testCharacter False "" 0 False 1) 1 1
     
 --- >>> newStatus = runTooEnd2 testBoard2 testCharacter
 --- >>> debugPrintFunc newStatus

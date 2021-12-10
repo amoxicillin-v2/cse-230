@@ -38,6 +38,7 @@ run = do
             (loadBoard (head rawBlocks) (head rawNums))
             character
             0
+            1
         else
           if choice == "2"
             then do
@@ -54,4 +55,5 @@ run = do
                 (loadBoard (rawBlocks !! 1) (rawNums !! 1))
                 character
                 0
+                2
             else Menu.run

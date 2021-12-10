@@ -14,12 +14,13 @@ import Printer
 import System.Environment
 import System.IO
 import Text.Read
+import Config
 
-run :: [[Block]] -> Character -> Int -> IO ()
+run :: [[Block]] -> Character -> Int -> Int -> IO ()
 -- initialize character if not present
-run board character0 tick = do
+run board character0 tick level = do
   -- init brick app
-  result <- brickMain (MkGameStatus board character0 False "Welcome to the Maze game! You can now begin the game!" tick False) -- enter event loop with initial gameState
+  result <- brickMain (MkGameStatus board character0 False "Welcome to the Maze game! You can now begin the game!" tick False level) -- enter event loop with initial gameState
   if not (gameOver result)
     then return ()
   else do
@@ -57,6 +58,7 @@ app =
 control :: GameStatus -> BrickEvent n Tick -> EventM n (Next GameStatus)
 control s ev = case ev of
   AppEvent Tick -> brickTick s
+  T.VtyEvent (V.EvKey (V.KChar 'r') _) -> brickRestart s
   T.VtyEvent (V.EvKey V.KUp _) -> brickMove s 'w'
   T.VtyEvent (V.EvKey V.KDown _) -> brickMove s 's'
   T.VtyEvent (V.EvKey V.KLeft _) -> brickMove s 'a'
@@ -66,17 +68,38 @@ control s ev = case ev of
   _ -> Brick.continue s
 
 brickTick :: GameStatus -> EventM n (Next GameStatus)
-brickTick (MkGameStatus board character gameOver gameInfo tick help) = Brick.continue (MkGameStatus board character gameOver gameInfo ((tick + 1) `mod` 2) help)
+brickTick (MkGameStatus board character gameOver gameInfo tick help l) = Brick.continue (MkGameStatus board character gameOver gameInfo ((tick + 1) `mod` 2) help l)
+
+brickRestart :: GameStatus -> EventM n (Next GameStatus)
+brickRestart (MkGameStatus _ _ _ _ _ _ level) = do
+  let character1 =
+                NewCharacter
+                  { health = 6,
+                    stepCount = 0,
+                    fov = 2,
+                    yPos = head (head characterPos),
+                    xPos = head characterPos !! 1
+                  }
+  let character2 =
+                    NewCharacter
+                      { health = 6,
+                        stepCount = 0,
+                        fov = 2,
+                        yPos = head (characterPos !! 1),
+                        xPos = (characterPos !! 1) !! 1
+                      }
+  if level == 1 then Brick.continue (MkGameStatus (loadBoard (head rawBlocks) (head rawNums)) character1 False "Welcome to the Maze game! You can now begin the game!" 0 False level)
+  else Brick.continue (MkGameStatus (loadBoard (rawBlocks !! 1) (rawNums !! 1)) character2 False "Welcome to the Maze game! You can now begin the game!" 0 False level)
 
 brickHelp :: GameStatus -> EventM n (Next GameStatus)
-brickHelp (MkGameStatus board character gameOver gameInfo tick True) = Brick.continue (MkGameStatus board character gameOver gameInfo tick False)
-brickHelp (MkGameStatus board character gameOver gameInfo tick False) = Brick.continue (MkGameStatus board character gameOver gameInfo tick True)
+brickHelp (MkGameStatus board character gameOver gameInfo tick True l) = Brick.continue (MkGameStatus board character gameOver gameInfo tick False l)
+brickHelp (MkGameStatus board character gameOver gameInfo tick False l) = Brick.continue (MkGameStatus board character gameOver gameInfo tick True l)
 
 brickMove :: GameStatus -> Char -> EventM n (Next GameStatus)
-brickMove gameStatus@(MkGameStatus _ _ _ _ _ True) _ = Brick.continue gameStatus
+brickMove gameStatus@(MkGameStatus _ _ _ _ _ True _) _ = Brick.continue gameStatus
 brickMove gameStatus action = do
   -- check valid move
-  let (MkGameStatus board character gameOver gameInfo tick help) = gameStatus
+  let (MkGameStatus board character gameOver gameInfo tick help l) = gameStatus
   --let tick1 = tick + 1
   let (NewCharacter _ _ _ y x) = character
   let y1
@@ -94,7 +117,7 @@ brickMove gameStatus action = do
     else do
       -- valid move
       -- let gameStatus1@(MkGameStatus board1 character1 _ _ _ _) = Character.move board character y1 x1
-      let gameStatus1@(MkGameStatus board1 character1 _ _ _ _) = Character.move gameStatus y1 x1
+      let gameStatus1@(MkGameStatus board1 character1 _ _ _ _ _) = Character.move gameStatus y1 x1
       -- check gameover, goal
       let (NewCharacter health _ _ y2 x2) = character1
       -- continue event loop

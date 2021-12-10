@@ -157,7 +157,7 @@ vLine (b:bs) = vBox (b : [hBorder <=> b | b <- bs])
 vLine _      = emptyWidget
 
 drawGame :: GameStatus -> [Widget String]
-drawGame (MkGameStatus _ _ _ _ _ True) = [helpDoc]
+drawGame (MkGameStatus _ _ _ _ _ True _) = [helpDoc]
 drawGame gs = do
   let cha = character gs
   let b = board gs
@@ -167,10 +167,10 @@ drawGame gs = do
   let down = (yPos cha) + (fov cha)
   let tik = (tick gs)
   [vBox [center $ vBox [
-    (drawCharacter cha),
+    (border $ drawCharacter cha),
     (vBox (drawMaze b left right up down 0 tik))],
-    hCenter (str (gameInfo gs)),
-    hCenter (str "For help, you can press 'h'")]]
+    border $ vBox [hCenter (str (gameInfo gs)),
+    hCenter (str "For help, you can press 'h', and if you want to restart the game, press 'r'")]]]
 
 blockM, blockM1, blockT, blockT1, blockG, blockG1, blockN, blockN1, blockE, blockW, blockC, blockC1, helpDoc:: Widget n
 blockM = vBox [
@@ -198,7 +198,7 @@ blockC = vBox [
 blockC1 = vBox [
   str "💃"]
 
-helpDoc = vLine [
+helpDoc = border $ vLine [
   vBox [ str "Here is the help document",
   str "  ",
   str "To control the character, you can use 'up' 'down' 'left' 'right' key",
