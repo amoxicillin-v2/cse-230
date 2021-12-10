@@ -1,10 +1,11 @@
 module Menu where
 
 import Block
+import Character
+import Config (characterPos, loadBoard, rawBlocks, rawNums)
 import GameLevel
 import Printer
 import System.IO
-import Config (loadBoard, rawNums, rawBlocks)
 
 run :: IO ()
 run = do
@@ -25,13 +26,34 @@ run = do
       if choice == "1"
         then do
           putStrLn ("\nEntering level: " ++ choice)
-          GameLevel.run (loadBoard (head rawBlocks) (head rawNums))
-            Nothing
+          let character =
+                NewCharacter
+                  { health = 6,
+                    stepCount = 0,
+                    fov = 2,
+                    yPos = head (head characterPos),
+                    xPos = head characterPos !! 1
+                  }
+          GameLevel.run
+            (loadBoard (head rawBlocks) (head rawNums))
+            character
             0
-      else if choice == "2"
-        then do
-          putStrLn ("\nEntering level: " ++ choice)
-          GameLevel.run (loadBoard (rawBlocks!!1) (rawNums!!1))
-            Nothing
-            0
-      else Menu.run
+            1
+        else
+          if choice == "2"
+            then do
+              putStrLn ("\nEntering level: " ++ choice)
+              let character =
+                    NewCharacter
+                      { health = 6,
+                        stepCount = 0,
+                        fov = 2,
+                        yPos = head (characterPos !! 1),
+                        xPos = (characterPos !! 1) !! 1
+                      }
+              GameLevel.run
+                (loadBoard (rawBlocks !! 1) (rawNums !! 1))
+                character
+                0
+                2
+            else Menu.run
