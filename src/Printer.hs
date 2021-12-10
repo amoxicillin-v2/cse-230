@@ -114,7 +114,6 @@ drawCharacter cha = do
   vBox [
     str "---- CHARACTER ----",
     str ("HP: " ++ h),
-    str ("MOV: " ++ count),
     str ("FOV: " ++ f),
     str "-------------------"]
 
