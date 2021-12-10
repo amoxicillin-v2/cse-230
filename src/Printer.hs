@@ -4,7 +4,7 @@ import System.IO
 import Block
 import Character (GameStatus (MkGameStatus), character, board, gameInfo, Character (NewCharacter), health, stepCount, fov, xPos, yPos, tick)
 import Brick
-import Brick.Widgets.Border (borderWithLabel, vBorder, hBorder)
+import Brick.Widgets.Border (borderWithLabel, vBorder, hBorder, border)
 import Brick.Widgets.Border.Style (unicode)
 import Brick.Widgets.Center (center, hCenter, centerWith)
 
@@ -119,21 +119,21 @@ drawCharacter cha = do
     str "-------------------"]
 
 drawBlock :: Block -> Bool -> Int -> Widget String
-drawBlock CharacterBlock _ 0 = center blockC
-drawBlock CharacterBlock _ _ = center blockC1
-drawBlock GoalBlock _ 0 = center blockG
-drawBlock GoalBlock _ _ = center blockG1
+drawBlock CharacterBlock _ 0 = blockC
+drawBlock CharacterBlock _ _ = blockC1
+drawBlock GoalBlock _ 0 = blockG
+drawBlock GoalBlock _ _ = blockG1
 --drawBlock GoalBlock _ 2 = center blockG
-drawBlock _ True 0 = centerWith (Just ' ') blockN
-drawBlock _ True _ = centerWith (Just ' ') blockN1
+drawBlock _ True 0 = blockN
+drawBlock _ True _ = blockN1
 --drawBlock _ True 2 = centerWith (Just ' ') blockN
-drawBlock EmptyBlock False _ = center blockE
-drawBlock WallBlock False _ = centerWith (Just 'X') blockW
-drawBlock (MonsterBlock _) False 0 = center blockM
-drawBlock (MonsterBlock _) False _ = center blockM1
+drawBlock EmptyBlock False _ = blockE
+drawBlock WallBlock False _ = blockW
+drawBlock (MonsterBlock _) False 0 = blockM
+drawBlock (MonsterBlock _) False _ = blockM1
 --drawBlock (MonsterBlock 2) False _ = center blockM
-drawBlock (TreasureBlock _) False 0 = center blockT
-drawBlock (TreasureBlock _) False _ = center blockT1
+drawBlock (TreasureBlock _) False 0 = blockT
+drawBlock (TreasureBlock _) False _ = blockT1
 --drawBlock (TreasureBlock 2) False _ = center blockT
 
 drawLine :: [Block] -> Int -> Int -> Int -> Int -> [Widget String]
@@ -145,8 +145,8 @@ drawLine (b : remain) left right current tik = do
 drawMaze :: [[Block]] -> Int -> Int -> Int -> Int -> Int -> Int -> [Widget String]
 drawMaze [] _ _ _ _ _ _ = []
 drawMaze (bs : remain)left right up down current tik= do
-  if (current >= up && current <= down) then (hLine (drawLine bs left right 0 tik)) : (drawMaze remain left right up down (current + 1) tik)
-  else (hLine (drawLine bs 0 0 1 tik)) : (drawMaze remain left right up down (current + 1) tik)
+  if (current >= up && current <= down) then (hBox (drawLine bs left right 0 tik)) : (drawMaze remain left right up down (current + 1) tik)
+  else (hBox (drawLine bs 0 0 1 tik)) : (drawMaze remain left right up down (current + 1) tik)
 
 hLine :: [Widget n] -> Widget n
 hLine (b:bs) = hBox (b : [vBorder <+> b | b <- bs])
@@ -166,60 +166,36 @@ drawGame gs = do
   let up = (yPos cha) - (fov cha)
   let down = (yPos cha) + (fov cha)
   let tik = (tick gs)
-  [vBox [
+  [center $ vBox [
     hCenter (drawCharacter cha),
-    center (vLine (drawMaze b left right up down 0 tik)),
+    hCenter (vBox (drawMaze b left right up down 0 tik)),
     hCenter (str (gameInfo gs))]]
 
 blockM, blockM1, blockT, blockT1, blockG, blockG1, blockN, blockN1, blockE, blockW, blockC, blockC1, helpDoc:: Widget n
 blockM = vBox [
-  str "  X X ",
-  str "   A  ",
-  str "  VWV "]
+  str "😈"]
 blockM1 = vBox [
-  str " X X  ",
-  str "  A   ",
-  str " ===  "]
+  str "👿"]
 blockG = vBox [
-  str " ||>  ",
-  str " ||> >",
-  str " ||   "]
+  str "🚩"]
 blockG1 = vBox [
-  str " ||> >",
-  str " ||>  ",
-  str " ||   "]
+  str "🚩"]
 blockT = vBox [
-  str "   *  ",
-  str "  *** ",
-  str "   *  "]
+  str "⭐"]
 blockT1 = vBox [
-  str "  * * ",
-  str "   *  ",
-  str "  * * "]
+  str "🌟"]
 blockW = vBox [
-  str "XXXXXX",
-  str "XXXXXX",
-  str "XXXXXX"]
+  str "🚧"]
 blockN = vBox [
-  str "      ",
-  str "   ?  ",
-  str "      "]
+  str "❓"]
 blockN1 = vBox [
-  str " ?   ?",
-  str "      ",
-  str " ?   ?"]
+  str "❓"]
 blockE = vBox [
-  str "      ",
-  str "      ",
-  str "      "]
+  str " "]
 blockC = vBox [
-  str "   *  ",
-  str " \\| | ",
-  str "   =  "]
+  str "🤖"]
 blockC1 = vBox [
-  str "   *  ",
-  str " /| | ",
-  str "   =  "]
+  str "🤖"]
 
 helpDoc = vLine [
   vBox [ str "Here is the help document",
