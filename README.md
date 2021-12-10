@@ -66,6 +66,8 @@ First, how should we implement the Config component so that it can load a maze f
 
 Second, what kind of information should we print so that the users could have a great game experience? After discussion, we plan to only print 3x3 blocks, which centered at the game character's location, so that the users won't get a full map of the maze, just like a real maze, you can only see the blocks around you.
 
+Third, we should make this maze alive, if possible we want to add some animation to the components of our maze.
+
 The last challenge is how to implement the LevelGen component, it is not easy to randomly generate a valid maze, if you just randomly set the walls and blocks, the users may get an invalid maze which they can never find a way to the goal. For this challenge we are still trying to find a proper solution.
 
 ## Plan
