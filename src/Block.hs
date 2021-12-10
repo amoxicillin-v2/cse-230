@@ -32,49 +32,14 @@ damage (MonsterBlock attack) = attack
 damage (TreasureBlock value) = -value
 damage _ = 0
 
+isEmptyBlock::Block->Bool
+isEmptyBlock EmptyBlock = True
+isEmptyBlock _ = False
 
--- >>> CharacterBlock
--- CharacterBlock
+isWallBlock::Block->Bool
+isWallBlock EmptyBlock = True
+isWallBlock _ = False
 
--- >>> EmptyBlock
--- EmptyBlock
---
-
--- class IBlock a where
---   icon :: a -> String
---   isValid :: a -> Bool
---   isGoal :: a -> Bool
---   damage :: a -> Int
-
--- data EmptyBlock = NewEmptyBlock {}
-
--- instance IBlock EmptyBlock where
---   icon _ = "    "
---   isValid _ = True
---   isGoal _ = False
---   damage _ = 0
-
--- data GoalBlock = NewGoalBlock {}
-
--- instance IBlock GoalBlock where
---   icon _ = "GOAL"
---   isValid _ = True
---   isGoal _ = True
---   damage _ = 0
-
-
-
---- (Error while loading modules for evaluation)
---- [3 of 5] Compiling Character        ( /Users/chao-te/Documents/UCSD/final-project/cse-230/src/Character.hs, interpreted )
---- <BLANKLINE>
---- /Users/chao-te/Documents/UCSD/final-project/cse-230/src/Character.hs:104:32-43: error:
----     Ambiguous occurrence ‘monsterBlock’
----     It could refer to
----        either ‘Block.monsterBlock’,
----               imported from ‘Block’ at /Users/chao-te/Documents/UCSD/final-project/cse-230/src/Character.hs:3:1-12
----               (and originally defined
----                  at /Users/chao-te/Documents/UCSD/final-project/cse-230/src/Block.hs:66:1-12)
----            or ‘Character.monsterBlock’,
----               defined at /Users/chao-te/Documents/UCSD/final-project/cse-230/src/Character.hs:100:1
---- Failed, two modules loaded.
----
+isCharacterBlock::Block->Bool
+isCharacterBlock CharacterBlock = True
+isCharacterBlock _ = False
